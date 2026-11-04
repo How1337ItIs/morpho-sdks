@@ -96,6 +96,40 @@ describe("isDefined", () => {
 });
 
 describe("bigIntComparator", () => {
+  describe.each(["asc", "desc"] as const)("%s", (order) => {
+    test.each([0n, 1n, -1n, 2n ** 256n - 1n])(
+      "behavior: equal bigint keys %s compare as zero",
+      (value) => {
+        const compare = bigIntComparator<{ v: bigint }>(
+          (entry) => entry.v,
+          order,
+        );
+        const item = { v: value };
+
+        expect(compare(item, item)).toBe(0);
+        expect(compare(item, { v: value })).toBe(0);
+      },
+    );
+
+    test("behavior: sorting preserves the input order of equal bigint keys", () => {
+      const items = [
+        { id: "first", v: 2n },
+        { id: "low", v: 1n },
+        { id: "second", v: 2n },
+        { id: "high", v: 3n },
+        { id: "third", v: 2n },
+      ];
+
+      items.sort(bigIntComparator((item) => item.v, order));
+
+      expect(items.map((item) => item.id)).toEqual(
+        order === "asc"
+          ? ["low", "first", "second", "third", "high"]
+          : ["high", "first", "second", "third", "low"],
+      );
+    });
+  });
+
   test("ascending order by default", () => {
     const items = [{ v: 3n }, { v: 1n }, { v: 2n }];
     items.sort(bigIntComparator((x) => x.v));

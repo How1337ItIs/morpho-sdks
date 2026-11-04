@@ -73,7 +73,7 @@ export const isDefined = <T>(v?: T | null): v is T => v != null;
  *
  * @param getter - Reads the bigint sort key from an item.
  * @param order - Optional sort order. Defaults to ascending.
- * @returns A comparator compatible with `Array.prototype.sort`.
+ * @returns A comparator compatible with `Array.prototype.sort`, returning zero for equal keys and placing nullish keys last in either order.
  * @example
  * ```ts
  * import { bigIntComparator } from "@morpho-org/morpho-ts";
@@ -96,6 +96,7 @@ export const bigIntComparator =
     if (xA == null && xB == null) return 0;
     if (xA == null) return 1;
     if (xB == null) return -1;
+    if (xA === xB) return 0;
 
     if (order === "asc") return xA > xB ? 1 : -1;
 
